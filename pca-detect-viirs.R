@@ -27,7 +27,7 @@ omerc_crs <- proj(p_swath, "omerc")
 cat("Oblique Mercator:", omerc_crs, "\n")
 
 ## Project and check: the swath should now be roughly axis-aligned
-g_omerc <- gproj(omerc_crs)
+g_omerc <- projector(omerc_crs)
 swath_proj <- g_omerc@proj_xy(swath_xy)
 cat("Projected extent X:", round(range(swath_proj[,1])), "\n")
 cat("Projected extent Y:", round(range(swath_proj[,2])), "\n")

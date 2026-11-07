@@ -1,7 +1,7 @@
 ## detect_grid demo: CryoSat NSIDC "cryptic curvilinear" → EPSG:3412
 ##
 ## Requires: the CS2WFA_25km_201007.nc file from the hypertidy blog post
-## source("R/gproj.R")
+## source("R/degredation.R")
 
 library(terra)
 
@@ -12,7 +12,7 @@ library(terra)
 #piggyback::pb_upload("CS2WFA_25km_201007.nc")
 
 
-dsn <- "/vsicurl/https://github.com/mdsumner/gproj/releases/download/v0.0.1/CS2WFA_25km_201007.nc"
+dsn <- "/vsicurl/https://github.com/hypertidy/degredation/releases/download/v0.0.1/CS2WFA_25km_201007.nc"
 
 ## 1. Read the lon/lat coordinate arrays
 lon <- values(r0 <- rast(sprintf("NETCDF:%s:lon", dsn)))

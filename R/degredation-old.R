@@ -1,4 +1,4 @@
-# gproj <- S7::new_class(name = "gproj", package = "gproj",
+# projector <- S7::new_class(name = "projector", package = "degredation",
 #   properties = list(
 #     crs = S7::new_property(class = S7::class_character, default = "EPSG:4326"),
 #     proj_xy = S7::new_property(

@@ -1,8 +1,8 @@
-# gproj design notes
+# degredation design notes
 
 ## Identity
 
-gproj is a **projection concierge**: given coordinates or a region of interest,
+degredation is a **projection concierge**: given coordinates or a region of interest,
 it tells you what projection to use and gives you the transform. It's not
 spatial infrastructure — it sits between "I have lon/lat data" and "I need a
 sensible projected view".
@@ -17,7 +17,7 @@ sensible projected view".
 
 ### Classes
 
-**`gproj(crs)`** — S7 object storing a CRS string, with `@proj_xy` (forward)
+**`projector(crs)`** — S7 object storing a CRS string, with `@proj_xy` (forward)
 and `@proj_ll` (inverse) methods. Identity when crs is empty.
 
 **`params(xy)` / `params(lon, lat)`** — Characterises the geometry of a
@@ -37,8 +37,8 @@ coordinate set:
 - A property: "equal_area", "equidistant", "conformal"
 - "auto" — picks family from data geometry (the textbook decision tree)
 
-**`gproj_region(lon, lat, radius_km, property)`** — Quick entry point:
-"equal area centred here, 500km radius". Returns gproj + extent.
+**`projector_region(lon, lat, radius_km, property)`** — Quick entry point:
+"equal area centred here, 500km radius". Returns projector + extent.
 
 **`grid_spec(region, resolution_m)`** — Target grid specification from a region.
 
@@ -90,7 +90,7 @@ result@extent      # c(-3950000, 3950000, -3950000, 4350000)
 result@dimensions  # c(316, 332)
 result@confidence  # 0-1
 result@residuals   # max deviation from perfect grid (CRS units)
-result@gproj       # ready-to-use gproj object
+result@projector   # ready-to-use projector object
 result@grid_spec   # list(crs, extent, res, dim)
 result@gdal_args   # c("-a_srs", "EPSG:3412", "-a_ullr", ...) for immediate use
 ```

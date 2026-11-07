@@ -27,5 +27,5 @@ NULL
 #' @examples
 #' viirs_eg() ## open this with 'new(gdalraster::GDALRaster, <>)' or terra::rast
 viirs_eg <- function() {
-  "/vsicurl/https://github.com/mdsumner/gproj/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
+  "/vsicurl/https://github.com/hypertidy/degredation/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
 }

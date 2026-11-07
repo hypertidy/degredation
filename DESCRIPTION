@@ -7,13 +7,13 @@ Description: A 'Projection Concierge': given coordinates or a region of interest
  it tells you what projection to use and gives you the transform. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-Language: es
+Language: en
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 3.5)
 LazyData: true
-URL: https://github.com/mdsumner/gproj
-BugReports: https://github.com/mdsumner/gproj/issues
+URL: https://github.com/hypertidy/degredation
+BugReports: https://github.com/hypertidy/degredation/issues
 Imports: 
     reproj,
     S7

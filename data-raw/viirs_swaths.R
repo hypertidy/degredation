@@ -23,13 +23,13 @@ cmd <- sprintf("wget --header=\"%s\" %s -O %s", header, gsub("/vsicurl/", "", ur
 system(cmd)
 
 ## didn't exactly go like that above so use
-## https://github.com/mdsumner/gproj/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc
+## https://github.com/hypertidy/degredation/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc
 library(piggyback)
-pb_new_release("mdsumner/gproj", "v0.0.1")
-pb_upload("~/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc",  repo = "mdsumner/gproj", tag = "v0.0.1")
+pb_new_release("hypertidy/degredation", "v0.0.1")
+pb_upload("~/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc",  repo = "hypertidy/degredation", tag = "v0.0.1")
 
 
-file <- "/vsicurl/https://github.com/mdsumner/gproj/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
+file <- "/vsicurl/https://github.com/hypertidy/degredation/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
 #library(terra)
 #ll <- terra::flip(c(rast(file, "/navigation_data/longitude"),
 #  rast(file, "/navigation_data/latitude")), "horizontal")

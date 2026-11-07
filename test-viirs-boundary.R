@@ -1,8 +1,8 @@
-## gproj Phase 1: params() and proj() with VIIRS swath boundary
+## degredation Phase 1: params() and proj() with VIIRS swath boundary
 ##
-## Run from the gproj package root, or adjust the source/load paths
+## Run from the degredation package root, or adjust the source/load paths
 
-#source("R/gproj.R")
+#source("R/degredation.R")
 load("data/viirs_boundary.rda")
 
 cat("viirs_boundary:", nrow(viirs_boundary), "points\n")
@@ -66,7 +66,7 @@ par(mfrow = c(2, 2), mar = c(1, 1, 2, 1))
 
 for (fam in families) {
   prj <- proj(p, fam)
-  g <- gproj(prj)
+  g <- projector(prj)
 
   xy_viirs <- g@proj_xy(viirs_boundary)
   xy_coast <- g@proj_xy(mp)
@@ -95,7 +95,7 @@ for (fam in families) {
 
 cat("\n=== Omerc alignment quality ===\n")
 
-g_omerc <- gproj(pca_omerc)
+g_omerc <- projector(pca_omerc)
 xy_omerc <- g_omerc@proj_xy(viirs_boundary)
 
 x_range <- diff(range(xy_omerc[,1], na.rm = TRUE))
@@ -107,7 +107,7 @@ cat("  Aspect (X/Y):", round(x_range / y_range, 2), "\n")
 cat("  (>> 1 means the swath is well-aligned along omerc X axis)\n")
 
 ## Compare with README omerc
-g_readme <- gproj(readme_omerc)
+g_readme <- projector(readme_omerc)
 xy_readme <- g_readme@proj_xy(viirs_boundary)
 x_range_r <- diff(range(xy_readme[,1], na.rm = TRUE))
 y_range_r <- diff(range(xy_readme[,2], na.rm = TRUE))
@@ -127,11 +127,11 @@ cat("\nFor omerc to be auto-selected, need variance_ratio > 0.85 AND tilt > 20.\
 cat("If auto didn't pick omerc, we may need to tune those thresholds.\n")
 
 # =============================================================================
-# 7. Quick gproj_region for context
+# 7. Quick projector_region for context
 # =============================================================================
 
-cat("\n=== gproj_region at swath centre ===\n")
-reg <- gproj_region(
+cat("\n=== projector_region at swath centre ===\n")
+reg <- projector_region(
   lon = p@centre["lon_0"],
   lat = p@centre["lat_0"],
   radius_km = 3000,

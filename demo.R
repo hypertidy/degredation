@@ -1,26 +1,26 @@
-## gproj Phase 1 demo
+## degredation Phase 1 demo
 ## Run this to exercise all the new functionality
 
-# source("R/gproj.R")  ## or devtools::load_all()
+# source("R/degredation.R")  ## or devtools::load_all()
 
 # =============================================================================
-# 1. Basic gproj: forward/inverse
+# 1. Basic projector: forward/inverse
 # =============================================================================
 
-cat("=== 1. gproj forward/inverse ===\n")
+cat("=== 1. projector forward/inverse ===\n")
 
 ## Identity
-g0 <- gproj()
+g0 <- projector()
 g0@proj_xy(cbind(147, -42))
 
 ## LAEA centred on Hobart
-g1 <- gproj("+proj=laea +lon_0=147 +lat_0=-42")
+g1 <- projector("+proj=laea +lon_0=147 +lat_0=-42")
 xy <- g1@proj_xy(cbind(147, -42))
 print(xy)  # should be ~0,0
 g1@proj_ll(xy)  # should be 147, -42
 
 ## Stereographic for Antarctica
-g2 <- gproj("+proj=stere +lat_0=-90 +lon_0=0 +lat_ts=-71 +datum=WGS84")
+g2 <- projector("+proj=stere +lat_0=-90 +lon_0=0 +lat_ts=-71 +datum=WGS84")
 
 
 # =============================================================================
@@ -68,13 +68,13 @@ cat("  -> variance ratio:", round(p_track@axis$variance_ratio[1], 3), "\n")
 
 
 # =============================================================================
-# 3. gproj_region: quick "give me a projection here"
+# 3. projector_region: quick "give me a projection here"
 # =============================================================================
 
-cat("\n=== 3. gproj_region() ===\n")
+cat("\n=== 3. projector_region() ===\n")
 
 ## Mawson Station
-mawson <- gproj_region(lon = 62.87, lat = -67.6, radius_km = 500, property = "equal_area")
+mawson <- projector_region(lon = 62.87, lat = -67.6, radius_km = 500, property = "equal_area")
 cat("Mawson LAEA:", mawson$crs, "\n")
 cat("Extent:", mawson$extent, "\n")
 
@@ -83,7 +83,7 @@ gs <- grid_spec(mawson, resolution_m = 1000)
 cat("Grid:", gs$dimension["ncol"], "x", gs$dimension["nrow"], "at", gs$resolution["dx"], "m\n")
 
 ## Davis Station, conformal
-davis <- gproj_region(lon = 77.97, lat = -68.58, radius_km = 200, property = "conformal")
+davis <- projector_region(lon = 77.97, lat = -68.58, radius_km = 200, property = "conformal")
 cat("Davis stereo:", davis$crs, "\n")
 
 
@@ -179,7 +179,7 @@ omerc_crs <- proj(p_swath, "omerc")
 cat("Oblique Mercator:", omerc_crs, "\n")
 
 ## Project and check: the swath should now be roughly axis-aligned
-g_omerc <- gproj(omerc_crs)
+g_omerc <- projector(omerc_crs)
 swath_proj <- g_omerc@proj_xy(swath_xy)
 cat("Projected extent X:", round(range(swath_proj[,1])), "\n")
 cat("Projected extent Y:", round(range(swath_proj[,2])), "\n")

@@ -1,21 +1,21 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# gproj
+# degredation
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of gproj is to encapsulate some map projection and grid logic.
+The goal of degredation is to encapsulate some map projection and grid logic.
 
 ## Installation
 
-You can install the development version of gproj from
+You can install the development version of degredation from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
-pak::pak("mdsumner/gproj")
+pak::pak("hypertidy/degredation")
 ```
 
 ## Nothing yet
@@ -28,20 +28,20 @@ Here’s my rough todo and examples.
 # 3. methods to find the middle of values
 # 4. methods to find the area
 #devtools::load_all()
-source("R/gproj.R")
+source("R/degredation.R")
 
 ## with this S7 class we can always project or unproject (intentionally, without juggling to/from defs)
-gproj()@proj_xy(cbind(0, 0)) #no-op
+projector()@proj_xy(cbind(0, 0)) #no-op
 #>      x y
 #> [1,] 0 0
-gproj("+proj=laea +lon_0=-147")@proj_xy(cbind(0, 0)) # fwd
+projector("+proj=laea +lon_0=-147")@proj_xy(cbind(0, 0)) # fwd
 #>             x y
 #> [1,] 12230967 0
-gproj("+proj=laea +lon_0=-147")@proj_ll(cbind(12230967.25458603, 0)) # inv
+projector("+proj=laea +lon_0=-147")@proj_ll(cbind(12230967.25458603, 0)) # inv
 #>                 x y
 #> [1,] 1.017777e-13 0
 
-omerc <- gproj("+proj=omerc +lonc=-113 +lat_0=-20 +alpha=15 +gamma=1")
+omerc <- projector("+proj=omerc +lonc=-113 +lat_0=-20 +alpha=15 +gamma=1")
 
 ## this is a swath boundary
 load("data/viirs_boundary.rda")
@@ -70,8 +70,8 @@ title("Oblique Mercator")
 ## with params() we can provide raw data and have it figure out a sensible set of params
 (prj <- proj(params(viirs_boundary), "stere"))
 #> [1] "+proj=stere +lon_0=-113 +lat_0=-20"
-plot(gproj(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
-points(gproj(prj)@proj_xy(mp), pch = ".")
+plot(projector(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
+points(projector(prj)@proj_xy(mp), pch = ".")
 title("Stereographic")
 ```
 
@@ -85,8 +85,8 @@ title("Stereographic")
 
 (prj <- proj(params(viirs_boundary), "ortho"))
 #> [1] "+proj=ortho +lon_0=-113 +lat_0=-20"
-plot(gproj(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
-points(gproj(prj)@proj_xy(mp), pch = ".")
+plot(projector(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
+points(projector(prj)@proj_xy(mp), pch = ".")
 title("Orthographic")
 ```
 
@@ -97,8 +97,8 @@ title("Orthographic")
 
 (prj <- proj(params(viirs_boundary), "laea"))
 #> [1] "+proj=laea +lon_0=-113 +lat_0=-20"
-plot(gproj(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
-points(gproj(prj)@proj_xy(mp), pch = ".")
+plot(projector(prj)@proj_xy(viirs_boundary), cex = .2, col = "firebrick", asp = 1)
+points(projector(prj)@proj_xy(mp), pch = ".")
 title("Lambert Azimuthal Equal-Area")
 ```
 
@@ -106,7 +106,7 @@ title("Lambert Azimuthal Equal-Area")
 
 ## Code of Conduct
 
-Please note that the gproj project is released with a [Contributor Code
+Please note that the degredation project is released with a [Contributor Code
 of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.

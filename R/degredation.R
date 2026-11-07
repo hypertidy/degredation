@@ -1,15 +1,15 @@
-## gproj: projection concierge
+## degredation: projection concierge and grid detection
 ## S7 classes and methods for easy projection selection and coordinate transformation
 ##
-## Phase 1: core gproj class, enriched params(), proj(), gproj_region()
+## Phase 1: core projector class, enriched params(), proj(), projector_region()
 
 library(S7)
 
 # =============================================================================
-# gproj class: stores a CRS and provides forward/inverse projection
+# projector class: stores a CRS and provides forward/inverse projection
 # =============================================================================
 
-gproj <- new_class("gproj",
+projector <- new_class("projector",
                    properties = list(
                      crs = class_character,
                      proj_xy = class_function,
@@ -50,14 +50,14 @@ params <- new_class("params",
                       span = class_numeric,         # c(lon_span, lat_span) in degrees
                       axis = class_list,            # PCA-derived great circle axis (azimuth, components)
                       hemisphere = class_character,  # "polar_south", "polar_north", "mid_south", "mid_north", "equatorial"
-                      aspect = class_character,     # "wide", "tall", "square" — shape of the region
+                      aspect = class_character,     # "wide", "tall", "square" -- shape of the region
                       secant = class_numeric,       # lat_1, lat_2 for conic projections (or empty)
                       n = class_integer             # number of input points
                     ),
                     constructor = function(xy = NULL, lon = NULL, lat = NULL, secant = FALSE) {
                       ## accept either a 2-col matrix or separate lon/lat
                       if (is.null(xy) && !is.null(lon) && !is.null(lat)) {
-                        ## lon/lat might be 2D arrays (curvilinear grids) — flatten
+                        ## lon/lat might be 2D arrays (curvilinear grids) -- flatten
                         xy <- cbind(as.vector(lon), as.vector(lat))
                       }
                       if (is.null(xy)) {
@@ -73,7 +73,7 @@ params <- new_class("params",
                       lat_vals <- xy[, 2]
 
                       ## --- Centre ---
-                      ## Use spherical (3D cartesian) centroid — robust to antimeridian and poles
+                      ## Use spherical (3D cartesian) centroid -- robust to antimeridian and poles
                       centre_3d <- spherical_centroid(lon_vals, lat_vals)
                       centre <- c(lon_0 = centre_3d[1], lat_0 = centre_3d[2])
 
@@ -137,7 +137,7 @@ params <- new_class("params",
 
 #' Compute the centroid of lon/lat points via 3D cartesian mean
 #'
-#' This avoids the column-mean-of-longitude problem near ±180.
+#' This avoids the column-mean-of-longitude problem near +/-180.
 #' Returns c(lon, lat) in degrees.
 #'
 spherical_centroid <- function(lon, lat) {
@@ -316,16 +316,16 @@ auto_family <- function(p, property = NULL) {
   }
 
   ## Auto mode: pick based on geometry
-  ## Small region → stereographic (conformal, good for local work)
+  ## Small region -> stereographic (conformal, good for local work)
   if (is_small) return("stere")
 
-  ## Polar → azimuthal
+  ## Polar -> azimuthal
   if (is_polar) return("stere")
 
-  ## Mid-latitude wide band → conic
+  ## Mid-latitude wide band -> conic
   if (is_mid && p@aspect == "wide") return("lcc")
 
-  ## Elongated along a great circle → oblique Mercator
+  ## Elongated along a great circle -> oblique Mercator
   if (!is.null(p@axis$variance_ratio) &&
       length(p@axis$variance_ratio) >= 2 &&
       p@axis$variance_ratio[1] > 0.80 &&
@@ -339,18 +339,18 @@ auto_family <- function(p, property = NULL) {
 
 
 # =============================================================================
-# gproj_region(): quick projection from a point + radius
+# projector_region(): quick projection from a point + radius
 # =============================================================================
 
-#' Create a gproj object centred on a point with a given radius
+#' Create a projector object centred on a point with a given radius
 #'
 #' @param lon centre longitude
 #' @param lat centre latitude
 #' @param radius_km radius in kilometres
 #' @param property "equal_area", "conformal", "equidistant", or a PROJ family name
-#' @return a list with gproj object, extent in projected coords, and grid_spec
+#' @return a list with projector object, extent in projected coords, and grid_spec
 #'
-gproj_region <- function(lon, lat, radius_km = 500, property = "equal_area") {
+projector_region <- function(lon, lat, radius_km = 500, property = "equal_area") {
   ## Create params from a single point (with hemisphere info from lat)
   ## We fake a small extent around the point to get hemisphere classification
   fake_xy <- cbind(
@@ -363,7 +363,7 @@ gproj_region <- function(lon, lat, radius_km = 500, property = "equal_area") {
 
   ## Get CRS
   crs_string <- proj(p, property)
-  g <- gproj(crs_string)
+  g <- projector(crs_string)
 
   ## Compute extent in projected coordinates
   radius_m <- radius_km * 1000
@@ -373,7 +373,7 @@ gproj_region <- function(lon, lat, radius_km = 500, property = "equal_area") {
   )
 
   list(
-    gproj = g,
+    projector = g,
     crs = crs_string,
     extent = extent_xy,
     centre_xy = c(x = 0, y = 0),
@@ -382,9 +382,9 @@ gproj_region <- function(lon, lat, radius_km = 500, property = "equal_area") {
 }
 
 
-#' Convenience: generate a grid specification from a gproj_region result
+#' Convenience: generate a grid specification from a projector_region result
 #'
-#' @param region result from gproj_region()
+#' @param region result from projector_region()
 #' @param resolution_m grid cell size in metres
 #' @return list with crs, extent, dimension, resolution
 #'
@@ -507,7 +507,7 @@ detect_rectilinear <- function(lon, lat, tol = 0.01) {
   nc <- ncol(lon)
 
   ## Test: does lon vary only along columns (i.e. each row has the same lon sequence)?
-  ## Check SD of each column of lon — should be near-zero
+  ## Check SD of each column of lon -- should be near-zero
   lon_col_sd <- apply(lon, 2, sd, na.rm = TRUE)
   lon_row_varies <- max(lon_col_sd, na.rm = TRUE) < tol
 
@@ -525,16 +525,16 @@ detect_rectilinear <- function(lon, lat, tol = 0.01) {
 
   ## Standard orientation: lon varies along columns (x-axis), lat along rows (y-axis)
   ## i.e. lon is constant within each row, lat is constant within each column
-  ## Wait — NetCDF convention: lon[y,x] so lon should be constant within each column
+  ## Wait -- NetCDF convention: lon[y,x] so lon should be constant within each column
   ## and lat constant within each row? No...
   ## Actually the standard case: lon[i,j] depends only on j, lat[i,j] depends only on i
-  ## So: for lon, within each row (fixed i), values change with j → lon varies along cols
-  ##     for lat, within each column (fixed j), values change with i → lat varies along rows
-  ## Test: lon constant within columns means lon[,j] has low SD → lon_col_sd is low? No,
-  ## lon[,j] has all the values for column j across all rows — if lon depends only on j
-  ## then lon[,j] should all be the same value → sd ≈ 0 → that's lon_col_sd
+  ## So: for lon, within each row (fixed i), values change with j -> lon varies along cols
+  ##     for lat, within each column (fixed j), values change with i -> lat varies along rows
+  ## Test: lon constant within columns means lon[,j] has low SD -> lon_col_sd is low? No,
+  ## lon[,j] has all the values for column j across all rows -- if lon depends only on j
+  ## then lon[,j] should all be the same value -> sd ~ 0 -> that's lon_col_sd
 
-  is_rectilinear <- lon_col_varies && lat_col_const  ## lon[i,j]~f(i), lat[i,j]~g(j) — transposed
+  is_rectilinear <- lon_col_varies && lat_col_const  ## lon[i,j]~f(i), lat[i,j]~g(j) -- transposed
   orientation <- "standard"
 
   if (!is_rectilinear) {
@@ -542,12 +542,12 @@ detect_rectilinear <- function(lon, lat, tol = 0.01) {
     is_rectilinear <- lon_row_varies && lat_row_const
     ## Actually let me be more careful. The two cases:
     ## Case A: lon depends on column index (j), lat depends on row index (i)
-    ##   → lon constant along rows of the lon matrix (each col of lon has same value)
-    ##   → lat constant along cols of the lat matrix (each row of lat has same value)
-    ##   → lon_col_sd ≈ 0 and lat_row_sd ≈ 0
+    ##   -> lon constant along rows of the lon matrix (each col of lon has same value)
+    ##   -> lat constant along cols of the lat matrix (each row of lat has same value)
+    ##   -> lon_col_sd ~ 0 and lat_row_sd ~ 0
     is_rectilinear_A <- all(lon_col_sd < tol) && all(lat_row_sd < tol)
 
-    ## Case B: transposed — lon depends on row index, lat depends on column index
+    ## Case B: transposed -- lon depends on row index, lat depends on column index
     is_rectilinear_B <- all(lon_row_sd < tol) && all(lat_col_sd < tol)
 
     is_rectilinear <- is_rectilinear_A || is_rectilinear_B
@@ -612,15 +612,15 @@ detect_rectilinear <- function(lon, lat, tol = 0.01) {
 # Printing / show methods
 # =============================================================================
 
-method(format, gproj) <- function(x, ...) {
+method(format, projector) <- function(x, ...) {
   if (nchar(x@crs) == 0) {
-    "<gproj: identity (no projection)>"
+    "<projector: identity (no projection)>"
   } else {
-    sprintf("<gproj: %s>", x@crs)
+    sprintf("<projector: %s>", x@crs)
   }
 }
 
-method(print, gproj) <- function(x, ...) {
+method(print, projector) <- function(x, ...) {
   cat(format(x), "\n")
   invisible(x)
 }
@@ -631,13 +631,13 @@ method(format, params) <- function(x, ...) {
     sprintf("  centre:     %.4f, %.4f", x@centre[1], x@centre[2]),
     sprintf("  extent:     [%.4f, %.4f] x [%.4f, %.4f]",
             x@extent_ll[1], x@extent_ll[2], x@extent_ll[3], x@extent_ll[4]),
-    sprintf("  span:       %.2f° lon x %.2f° lat", x@span[1], x@span[2]),
+    sprintf("  span:       %.2f deg lon x %.2f deg lat", x@span[1], x@span[2]),
     sprintf("  hemisphere: %s", x@hemisphere),
     sprintf("  aspect:     %s", x@aspect)
   )
   if (!is.null(x@axis$azimuth) && is.finite(x@axis$azimuth)) {
     lines <- c(lines,
-               sprintf("  axis:       azimuth=%.1f°, tilt=%.1f°, var_ratio=%.2f/%.2f/%.2f",
+               sprintf("  axis:       azimuth=%.1f deg, tilt=%.1f deg, var_ratio=%.2f/%.2f/%.2f",
                        x@axis$azimuth, x@axis$tilt,
                        x@axis$variance_ratio[1],
                        x@axis$variance_ratio[2],

@@ -1,4 +1,4 @@
-file <- "/vsicurl/https://github.com/mdsumner/gproj/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
+file <- "/vsicurl/https://github.com/hypertidy/degredation/releases/download/v0.0.1/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc"
 
 file <- normalizePath("~/S3B_OLCI_ERRNT.20250101T164657.L2.IOP.NRT.nc")
 dsn <- sprintf("NetCDF:\"%s\":/geophysical_data/bbp_443", file)
@@ -6,7 +6,7 @@ library(gdalraster)
 s <- 1.2e7
 lon <- seq(-160, -40, by = 5)
 i <- 12
-source("R/gproj.R")
+source("R/degredation.R")
 
 w <- warp(dsn, tf <- tempfile(tmpdir = "/vsimem", fileext = ".tif"), prj, cl_arg = c("-te", -s, -s, s, s, "-ts",  1024, 0))
 elev_pal <- hcl.colors(256)
